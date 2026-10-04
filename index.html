@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="calculator-container">
+    <div class="calculator-screen" id="calculator-screen">0</div>
+    <div class="calculator-keys">
+      <button type="button" class="function" data-action="clear">C</button>
+      <button type="button" class="function" data-action="sign">+/-</button>
+      <button type="button" class="function" data-action="percent">%</button>
+      <button type="button" class="operator" data-action="divide">/</button>
+
+      <button type="button" data-digit="7">7</button>
+      <button type="button" data-digit="8">8</button>
+      <button type="button" data-digit="9">9</button>
+      <button type="button" class="operator" data-action="multiply">*</button>
+
+      <button type="button" data-digit="4">4</button>
+      <button type="button" data-digit="5">5</button>
+      <button type="button" data-digit="6">6</button>
+      <button type="button" class="operator" data-action="subtract">-</button>
+
+      <button type="button" data-digit="1">1</button>
+      <button type="button" data-digit="2">2</button>
+      <button type="button" data-digit="3">3</button>
+      <button type="button" class="operator" data-action="add">+</button>
+
+      <button type="button" data-digit="0" class="zero">0</button>
+      <button type="button" data-action="decimal">.</button>
+      <button type="button" class="operator" data-action="equals">=</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { CalculatorState } from './calc.js';
+
+    const calculator = new CalculatorState();
+    const screen = document.getElementById('calculator-screen');
+
+    function updateDisplay() {
+      screen.textContent = calculator.displayValue;
+    }
+
+    const keys = document.querySelector('.calculator-keys');
+    keys.addEventListener('click', (event) => {
+      const { target } = event;
+      if (!target.matches('button')) return;
+
+      const digit = target.getAttribute('data-digit');
+      const action = target.getAttribute('data-action');
+
+      if (digit !== null) {
+        calculator.inputDigit(parseInt(digit, 10));
+      } else if (action !== null) {
+        switch (action) {
+          case 'clear':
+            calculator.clear();
+            break;
+          case 'sign':
+            calculator.toggleSign();
+            break;
+          case 'percent':
+            calculator.percentage();
+            break;
+          case 'decimal':
+            calculator.inputDecimal('.');
+            break;
+          case 'add':
+            calculator.handleOperator('+');
+            break;
+          case 'subtract':
+            calculator.handleOperator('-');
+            break;
+          case 'multiply':
+            calculator.handleOperator('*');
+            break;
+          case 'divide':
+            calculator.handleOperator('/');
+            break;
+          case 'equals':
+            calculator.calculateResult();
+            break;
+        }
+      }
+
+      updateDisplay();
+    });
+
+    // Keyboard support
+    window.addEventListener('keydown', (event) => {
+      const { key } = event;
+      if (!isNaN(key)) {
+        calculator.inputDigit(parseInt(key, 10));
+      } else if (key === '.') {
+        calculator.inputDecimal('.');
+      } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+        calculator.handleOperator(key);
+      } else if (key === 'Enter' || key === '=') {
+        event.preventDefault();
+        calculator.calculateResult();
+      } else if (key === 'Backspace') {
+        calculator.backspace();
+      } else if (key === 'Escape' || key === 'c' || key === 'C') {
+        calculator.clear();
+      } else if (key === '%') {
+        calculator.percentage();
+      }
+      updateDisplay();
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
