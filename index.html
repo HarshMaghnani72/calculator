@@ -5,9 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Basic Calculator</title>
   <link rel="stylesheet" href="style.css">
+  <script>
+    // Prevent flash of wrong theme
+    (function() {
+      const savedTheme = localStorage.getItem('calculator-theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="calculator-container">
+    <div class="calculator-header">
+      <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark and light mode">🌙</button>
+    </div>
     <div class="calculator-screen" id="calculator-screen">0</div>
     <div class="calculator-keys">
       <button type="button" class="function" data-action="clear">C</button>
@@ -45,6 +61,31 @@
     function updateDisplay() {
       screen.textContent = calculator.displayValue;
     }
+
+    // Theme toggling logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+
+    function updateThemeButton(theme) {
+      if (theme === 'dark') {
+        themeToggleBtn.textContent = '☀️';
+        themeToggleBtn.setAttribute('aria-label', 'Switch to light mode');
+      } else {
+        themeToggleBtn.textContent = '🌙';
+        themeToggleBtn.setAttribute('aria-label', 'Switch to dark mode');
+      }
+    }
+
+    // Initialize theme button icon based on current document attribute
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    updateThemeButton(currentTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      const activeTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('calculator-theme', newTheme);
+      updateThemeButton(newTheme);
+    });
 
     const keys = document.querySelector('.calculator-keys');
     keys.addEventListener('click', (event) => {
